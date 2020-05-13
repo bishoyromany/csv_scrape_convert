@@ -1,5 +1,6 @@
 <?php 
     ini_set('max_execution_time', 3600);
+    ini_set('memory_limit', '500M');
 
     function get_string_between($string, $start, $end){
         $string = ' ' . $string;
@@ -108,6 +109,12 @@ if(isset($_GET['serve'])){
             }else{
                 $num = count($data);
                 for ($c=0; $c < $num; $c++) {
+                    for($xss = 0; $xss < count($cColumns); $xss++){
+                        $cc = $cColumns[$xss];
+                        if($data[$c] == $cc['name']){
+                            $cColumns[$xss]['id'] = $c;
+                        }
+                    }
                     $headers[] = $data[$c];
                 } 
             }
