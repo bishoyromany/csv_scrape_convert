@@ -12,7 +12,7 @@
 
 # Additional Information
 
-* You can Enable Web Server Option, To Let The Website Content Full Load, By Editing **ENABLE_BROWSER** From **False** To **True** In path-to-xampp/htdocs/bot_folder_name/backend/scrape.py
+* You can Enable Web Driver Option, To Let The Website Content Full Load, By Editing **ENABLE_BROWSER** From **False** To **True** In path-to-xampp/htdocs/bot_folder_name/backend/scrape.py
     
     ```python
         try:
