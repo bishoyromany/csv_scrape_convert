@@ -76,6 +76,7 @@ class AdblockParser
         $url = trim($url);
 
         if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return false;
             throw new \Exception("Invalid URL");
         }
 
