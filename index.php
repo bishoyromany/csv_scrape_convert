@@ -33,6 +33,14 @@
                 <label for="fileName">File Name</label>
                 <input type="text" name="fileName" id="fileName" class="form-control">
             </div>
+            <div class="form-group">
+                <label for="startFrom">Start From</label>
+                <input type="text" name="startFrom" id="startFrom" placeholder="CSV Start Number" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="stopAt">Stop At</label>
+                <input type="text" name="stopAt" id="stopAt" placeholder="CSV Stop Number" class="form-control">
+            </div>
             <button type="submit" class="btn btn-primary" name="serve">Start</button>
         </form>
     </div>

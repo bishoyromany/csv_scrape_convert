@@ -121,6 +121,18 @@ function checkIfCompany($url){
     // }
 }
 
+/**
+ * clean up temp file
+ */
+function cleanUpTemp(){
+    $files = glob('temp/*'); // get all file names
+    foreach($files as $file){ // iterate files
+    if(is_file($file))
+        unlink($file); // delete file
+    }
+    file_put_contents('temp/log.txt', '');
+}
+
 
 /**
  * get variables
@@ -149,6 +161,8 @@ foreach($columns as $column){
 }
 
 if(isset($_GET['serve'])){
+    cleanUpTemp();
+
     // get urls
     $data = file_get_contents($url);
     $data = get_string_between($data, 'style="border:none;" frameborder="0"></iframe>', '</div>');
@@ -173,7 +187,6 @@ if(isset($_GET['serve'])){
 
     // loop the files to get the csv files
     $x = 0;
-
     foreach($files as $file){
         $hash = $x.'.csv';
         if(!file_exists(__DIR__.'/files/'.$hash)){
@@ -182,15 +195,21 @@ if(isset($_GET['serve'])){
         }
 
         $file = fopen(__DIR__.'/files/'.$hash, "r");
-        $row = 0;
 
         foreach($fileTypes as $fType){
             $aa = "headers$fType";
             $$aa = [];
         }
         
-        $subFinal = [];
+        
+        /**
+         * the records of each csv file
+         */
+        $subFinalCOMPANIES = [];
+        $subFinalPUBLISHERS = [];
+        $subFinalUNKNOWN = [];
 
+        $row = 0;
         while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
             if($row > 0){
                 $ddd = [];
@@ -208,15 +227,16 @@ if(isset($_GET['serve'])){
                     }
 
                     if($done){
-                        $finalCsvPUBLISHERS[] = $ddd;
+                        $subFinalPUBLISHERS[] = $ddd;
                     }else{
-                        $finalCsvUNKNOWN[] = $ddd;
+                        $subFinalUNKNOWN[] = $ddd;
                     }
                 }else{
-                    $finalCsvCOMPANIES[] = $ddd;
+                    $subFinalCOMPANIES[] = $ddd;
                 }
 
-
+                $damnData = file_get_contents('temp/log.txt');
+                file_put_contents('temp/log.txt', $damnData."Domain $ddd[domain] Is Done For File $x \n");
 
                 // if($allInOneFile){
                 //     $finalCsv[] = $ddd;
@@ -246,6 +266,33 @@ if(isset($_GET['serve'])){
 
         fclose($file);
 
+        /**
+         * save the sub files 
+         */
+        file_put_contents(__DIR__."/temp/$x"."_subFinalCOMPANIES.txt", json_encode($subFinalCOMPANIES));
+        file_put_contents(__DIR__."/temp/$x"."_subFinalPUBLISHERS.txt", json_encode($subFinalPUBLISHERS));
+        file_put_contents(__DIR__."/temp/$x"."_subFinalUNKNOWN.txt", json_encode($subFinalUNKNOWN));
+
+        /**
+         * the csv data
+         */
+        foreach($subFinalCOMPANIES as $comp){
+            $finalCsvCOMPANIES[] = $comp;
+        }
+        foreach($subFinalPUBLISHERS as $ccc){
+            $subFinalPUBLISHERS[] = $ccc;
+        }
+        foreach($subFinalUNKNOWN as $unn){
+            $subFinalUNKNOWN[] = $unn;
+        }
+        
+        /**
+         * echo that files are done
+         */
+        var_dump("<a href='http://".$_SERVER['HTTP_HOST']."/csv_scrape_convert/backend/temp/"."$x"."_subFinalCOMPANIES.txt'>CSV File Number $x Companies is Done</a>. <br />");
+        var_dump("<a href='http://".$_SERVER['HTTP_HOST']."/csv_scrape_convert/backend/temp/"."$x"."_subFinalPUBLISHERS.txt'>CSV File Number $x Publishers is Done</a>. <br />");
+        var_dump("<a href='http://".$_SERVER['HTTP_HOST']."/csv_scrape_convert/backend/temp/"."$x"."_subFinalUNKNOWN.txt'>CSV File Number $x Unknown is Done</a>. <br />");
+
         if($TEST){
             break;
         }
@@ -253,10 +300,6 @@ if(isset($_GET['serve'])){
     }
 
     if($allInOneFile){
-        // Open a file in write mode ('w') 
-        $zipname = $fileName.'.zip';
-        // $zip = new ZipArchive;
-        // $zip->open($zipname, ZipArchive::CREATE);
         foreach($fileTypes as $type){
             $ff = "finalCsv$type";
             $newFileName = $type.'_'.$fileName;
@@ -273,29 +316,7 @@ if(isset($_GET['serve'])){
             fclose($fileData);
 
             echo "<a href='http://".$_SERVER['HTTP_HOST']."/csv_scrape_convert/backend/download/"."$newFileName'>$newFileName</a><br />";
-
-            // download the file
-            if (file_exists('download/'.$newFileName)) {
-                // $zip->addFile($newFileName);
-                // header('Content-Description: File Transfer');
-                // header('Content-Type: application/octet-stream');
-                // header('Content-Disposition: attachment; filename='.basename($newFileName));
-                // header('Content-Transfer-Encoding: binary');
-                // header('Expires: 0');
-                // header('Cache-Control: must-revalidate');
-                // header('Pragma: public');
-                // header('Content-Length: ' . filesize($newFileName));
-                // ob_clean();
-                // flush();
-                // readfile($newFileName);
-                // header('Content-Description: File Transfer');
-            }
         }
-        // $zip->close();
-        // header('Content-Type: application/zip');
-        // header('Content-disposition: attachment; filename='.$zipname);
-        // header('Content-Length: ' . filesize($zipname));
-        // readfile($zipname);
         exit;
     }else{
         $subFinal[] = $ddd;
