@@ -109,6 +109,8 @@ function checkIfCompany($url){
     }else{
         $url = $url.'/ads.txt';
     }
+
+    $url = "http://billboard.com/ads.txt";
     $data = get_web_page($url);
     if(empty($data['content'])){
         return false;
