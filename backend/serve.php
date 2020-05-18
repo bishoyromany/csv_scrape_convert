@@ -145,19 +145,21 @@ function getLinks($url){
         return [];
     }else{
         $html = str_get_html($data['content']);
-        foreach($html->find('a') as $a){
-            if(isset(explode('http', $a->href)[1])){
-               $links[] = $a->href;
+        if($html){
+            foreach($html->find('a') as $a){
+                if(isset(explode('http', $a->href)[1])){
+                   $links[] = $a->href;
+                }
             }
-        }
-        foreach($html->find('iframe') as $a){
-            if(isset(explode('http', $a->src)[1])){
-               $links[] = $a->src;
+            foreach($html->find('iframe') as $a){
+                if(isset(explode('http', $a->src)[1])){
+                   $links[] = $a->src;
+                }
             }
-        }
-        foreach($html->find('script') as $a){
-            if(isset(explode('http', $a->src)[1])){
-               $links[] = $a->src;
+            foreach($html->find('script') as $a){
+                if(isset(explode('http', $a->src)[1])){
+                   $links[] = $a->src;
+                }
             }
         }
         return $links;
