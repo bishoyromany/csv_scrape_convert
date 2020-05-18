@@ -1,41 +1,13 @@
 # Bot Usage 
 1. Install Xampp For Windows From https://www.apachefriends.org/index.html
-2. Install Python 3 For Windows From https://www.python.org/downloads/
-3. Make Sure That Python Exist In The Windows Pathes, to Check This Run ``` python --version ``` If Works Fine Then all is good, Else Go To https://superuser.com/questions/143119/how-do-i-add-python-to-the-windows-path To Know How to do this step 
-4. Run Download The Bot From https://github.com/bishoyromany/csv_scrape_convert Extract Files And Move Them To htdocs Folder
-5. Go To The Bot Folder inside htdocs folder, then go to backend folder then run following commands 
-    ```
-    pip install selenium
-    pip install beautifulsoup4 
-    ```
-6. Open Xampp, And Run The Server, Then Go To http://127.0.0.1/bot_folder_name/ And Fill Form Details Then Run The Script
+2. Run Download The Bot From https://github.com/bishoyromany/csv_scrape_convert Extract Files And Move Them To htdocs Folder
+3. Open Xampp, And Run The Server, Then Go To http://127.0.0.1/bot_folder_name/ And Fill Form Details Then Run The Script
 
-# Additional Information
-
-* You can Enable Web Driver Option, To Let The Website Content Full Load, By Editing **ENABLE_BROWSER** From **False** To **True** In path-to-xampp/htdocs/bot_folder_name/backend/scrape.py
+# Important Information
+1. you've a file called log.txt inside /backend/temp/ Here you can see all finished domains logs.
+2. you can run more than one process Using the UI form, By adding Start From And End At Options.
+    For Example start From 0 and end at 1 this will make the scipt process only csv file number 0 and 1 
+3. Domain themoneytizer.com/ Is Done For File 0 And It Took 74 Seconds PUBLISHER, This Message in the logs means the following, 
+    Finished Domain is themoneytizer.com and CSV File number is 0, and required time to finish this domain took 74 seconds, and domain type is publisher
     
-    ```python
-        try:
-            import re2 as re
-        except ImportError:
-            import re
-
-        ENABLE_BROWSER = False
-
-
-        url = sys.argv[1]
-    ```
-
-    ```python
-        try:
-            import re2 as re
-        except ImportError:
-            import re
-
-        ENABLE_BROWSER = True
-
-
-        url = sys.argv[1]
-    ```
-
 ### That's It All, Thanks.
