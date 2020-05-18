@@ -1,2 +1,6 @@
 backend/files
 !backend/files/.gitkeep
+backend/temp
+!backend/temp/.gitkeep
+backend/download
+!backend/download/.gitkeep

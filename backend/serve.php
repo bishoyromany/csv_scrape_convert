@@ -32,10 +32,12 @@ function get_string_between($string, $start, $end){
     return substr($string, $ini, $len);
 }
 
-function dd($data){
-    echo "<pre>";
-        print_r($data);
-    echo "</pre>";
+function dd(...$data){
+    foreach($data as $d){
+        echo "<pre>";
+            print_r($d);
+        echo "</pre>"; 
+    }
     exit;
 }
 
@@ -55,6 +57,9 @@ function toJson($data){
     return $returned;
 }
 
+/**
+ * get page 
+ */
 function get_web_page($url){
     $user_agent='Mozilla/5.0 (Windows NT 6.1; rv:8.0) Gecko/20100101 Firefox/8.0';
 
@@ -88,12 +93,22 @@ function get_web_page($url){
     return $header;
 }
 
+/**
+ * check if response is HTML or no
+ */
 function is_html($string){
   return preg_match("/<[^<]+>/",$string,$m) != 0;
 }
 
+/**
+ * check if url for company or no
+ */
 function checkIfCompany($url){
-    $url = 'http://'.$url.'ads.text';
+    if(isset(explode('/', explode('.', $url)[count(explode('.', $url)) - 1])[1])){
+        $url = $url.'ads.text';
+    }else{
+        $url = $url.'/ads.text';
+    }
     $data = get_web_page($url);
     if(empty($data['content'])){
         return false;
@@ -128,9 +143,14 @@ function cleanUpTemp(){
     $files = glob('temp/*'); // get all file names
     foreach($files as $file){ // iterate files
     if(is_file($file))
+        if(isset(explode('log', $file)[1]) || isset(explode('git', $file)[1])){
+            continue;
+        }
         unlink($file); // delete file
     }
-    file_put_contents('temp/log.txt', '');
+    if(!file_exists('temp/log.txt')){
+        file_put_contents('temp/log.txt', '');
+    }
 }
 
 
@@ -147,7 +167,8 @@ if(!$columns){ echo "Make sure to Write The Columsn"; exit; }
 $filterDuplicates = isset($_GET['filterDuplicates']) ? filter_var($_GET['filterDuplicates'], FILTER_SANITIZE_STRING) : false;
 $allInOneFile = isset($_GET['allInOneFile']) ? filter_var($_GET['allInOneFile'], FILTER_SANITIZE_STRING) : false;
 $fileName = isset($_GET['fileName']) && !empty($_GET['fileName']) ? filter_var($_GET['fileName'], FILTER_SANITIZE_STRING).'.csv' : 'fileName.csv';
-
+$startFrom = isset($_GET['startFrom']) ? filter_var($_GET['startFrom'], FILTER_SANITIZE_NUMBER_INT) : -1;
+$stopAt = isset($_GET['stopAt']) ? filter_var($_GET['stopAt'], FILTER_SANITIZE_NUMBER_INT) : -1;
 
 $TEST = false;
 
@@ -189,6 +210,12 @@ if(isset($_GET['serve'])){
     $x = 0;
     foreach($files as $file){
         $hash = $x.'.csv';
+
+        if($startFrom != -1 && $x < $startFrom){
+            $x ++;
+            continue;
+        }
+
         if(!file_exists(__DIR__.'/files/'.$hash)){
             $csvData = file_get_contents($file);
             file_put_contents(__DIR__.'/files/'.$hash, $csvData);
@@ -212,13 +239,18 @@ if(isset($_GET['serve'])){
         $row = 0;
         while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
             if($row > 0){
+                // start time
+                $tt = time();
+
                 $ddd = [];
                 foreach($cColumns as $cc){
                     $ddd[$cc['name']] = $data[$cc['id']];
                 }
 
-                if(!checkIfCompany($ddd['domain'])){
-                    $output = json_decode(exec("python scrape.py http://".$ddd['domain']));
+                $domain = isset(explode('http', $ddd['domain'])[1]) ? '' : 'http://';
+
+                if(!checkIfCompany($domain.$ddd['domain'])){
+                    $output = json_decode(exec("python scrape.py $domain".$ddd['domain']));
                     $done = false;
                     foreach($output as $url){
                         if(!$adblockParser->shouldBlock($url)){
@@ -236,7 +268,8 @@ if(isset($_GET['serve'])){
                 }
 
                 $damnData = file_get_contents('temp/log.txt');
-                file_put_contents('temp/log.txt', $damnData."Domain $ddd[domain] Is Done For File $x \n");
+                $endTime = time() - $tt;
+                file_put_contents('temp/log.txt', $damnData."Domain $ddd[domain] Is Done For File $x And It Took $endTime Seconds \n");
 
                 // if($allInOneFile){
                 //     $finalCsv[] = $ddd;
@@ -297,6 +330,12 @@ if(isset($_GET['serve'])){
             break;
         }
         $x ++;
+
+
+        if($stopAt != -1 && $x > $stopAt){
+            break;
+        }
+
     }
 
     if($allInOneFile){

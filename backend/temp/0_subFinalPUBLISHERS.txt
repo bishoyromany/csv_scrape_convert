@@ -1,1 +1,0 @@
-[{"domain":"themoneytizer.com\/","seller_type":"PUBLISHER"},{"domain":"ezoic.com\/","seller_type":"PUBLISHER"},{"domain":"rtbdemand.com\/","seller_type":"PUBLISHER"},{"domain":"appmonet.com","seller_type":"INTERMEDIARY"}]
