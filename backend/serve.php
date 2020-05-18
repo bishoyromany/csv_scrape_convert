@@ -13,7 +13,6 @@ use Limonte\AdblockParser;
 $rules = file("easylist.txt");
 $adblockParser = new AdblockParser($rules);
 
-
 function throwErrorException($errstr = null,$code = null, $errno = null, $errfile = null, $errline = null) {
     throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 }
@@ -173,7 +172,6 @@ $fileTypes = ['COMPANIES','PUBLISHERS', 'UNKNOWN'];
 
 $url = isset($_GET['url']) && !empty($_GET['url']) ? filter_var($_GET['url'], FILTER_SANITIZE_STRING) : false;
 if(!$url){ echo "Make sure to Write The URL"; exit; }
-
 $columns = isset($_GET['columns']) && !empty($_GET['columns']) ? explode(',',filter_var($_GET['columns'], FILTER_SANITIZE_STRING)) : false;
 if(!$columns){ echo "Make sure to Write The Columsn"; exit; }
 $filterDuplicates = isset($_GET['filterDuplicates']) ? filter_var($_GET['filterDuplicates'], FILTER_SANITIZE_STRING) : false;
@@ -260,10 +258,6 @@ if(isset($_GET['serve'])){
                 }
 
                 $domain = isset(explode('http', $ddd['domain'])[1]) ? '' : 'http://';
-
-                if($ddd['domain'] != 'billboard.com'){
-                    continue;
-                }
 
                 $type = ''; 
 
