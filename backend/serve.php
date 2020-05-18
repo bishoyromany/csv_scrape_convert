@@ -1,6 +1,6 @@
 <?php 
 ini_set('max_execution_time', 0);
-ini_set('memory_limit', '500M');
+ini_set('memory_limit', '1000M');
 
 require __DIR__."/Limonte/AdblockParser.php";
 require __DIR__."/Limonte/AdblockRule.php";
@@ -35,7 +35,7 @@ function get_string_between($string, $start, $end){
 function dd(...$data){
     foreach($data as $d){
         echo "<pre>";
-            print_r($d);
+            var_dump($d);
         echo "</pre>"; 
     }
     exit;
@@ -105,19 +105,21 @@ function is_html($string){
  */
 function checkIfCompany($url){
     if(isset(explode('/', explode('.', $url)[count(explode('.', $url)) - 1])[1])){
-        $url = $url.'ads.text';
+        $url = $url.'ads.txt';
     }else{
-        $url = $url.'/ads.text';
+        $url = $url.'/ads.txt';
     }
     $data = get_web_page($url);
     if(empty($data['content'])){
         return false;
     }else{
-        if(is_html($data['content'])){
-            return false;
-        }else{
-            return true;
-        }
+        return is_html($data['content']);
+        // dd(is_html($data['content']), "here");
+        // if()){
+        //     return false;
+        // }else{
+        //     return true;
+        // }
     }
 
     // try{
@@ -249,6 +251,8 @@ if(isset($_GET['serve'])){
 
                 $domain = isset(explode('http', $ddd['domain'])[1]) ? '' : 'http://';
 
+                $type = '';
+
                 if(!checkIfCompany($domain.$ddd['domain'])){
                     $output = json_decode(exec("python scrape.py $domain".$ddd['domain']));
                     $done = false;
@@ -257,19 +261,21 @@ if(isset($_GET['serve'])){
                             $done = true;
                         }
                     }
-
                     if($done){
+                        $type = "PUBLISHER";
                         $subFinalPUBLISHERS[] = $ddd;
                     }else{
+                        $type = "UNKNOWN";
                         $subFinalUNKNOWN[] = $ddd;
                     }
                 }else{
+                    $type = "COMPANY";
                     $subFinalCOMPANIES[] = $ddd;
                 }
 
                 $damnData = file_get_contents('temp/log.txt');
                 $endTime = time() - $tt;
-                file_put_contents('temp/log.txt', $damnData."Domain $ddd[domain] Is Done For File $x And It Took $endTime Seconds \n");
+                file_put_contents('temp/log.txt', $damnData."Domain $ddd[domain] Is Done For File $x And It Took $endTime Seconds $type \n");
 
                 // if($allInOneFile){
                 //     $finalCsv[] = $ddd;
@@ -313,10 +319,10 @@ if(isset($_GET['serve'])){
             $finalCsvCOMPANIES[] = $comp;
         }
         foreach($subFinalPUBLISHERS as $ccc){
-            $subFinalPUBLISHERS[] = $ccc;
+            $finalCsvPUBLISHERS[] = $ccc;
         }
         foreach($subFinalUNKNOWN as $unn){
-            $subFinalUNKNOWN[] = $unn;
+            $finalCsvUNKNOWN[] = $unn;
         }
         
         /**
