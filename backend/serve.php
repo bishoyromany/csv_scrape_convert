@@ -6,6 +6,7 @@ require __DIR__."/Limonte/AdblockParser.php";
 require __DIR__."/Limonte/AdblockRule.php";
 require __DIR__."/Limonte/InvalidRuleException.php";
 require __DIR__."/Limonte/Str.php";
+require_once __DIR__.'/phpDom.php';
 
 use Limonte\AdblockParser;
 
@@ -109,35 +110,12 @@ function checkIfCompany($url){
     }else{
         $url = $url.'/ads.txt';
     }
-
-    $url = "http://billboard.com/ads.txt";
     $data = get_web_page($url);
     if(empty($data['content'])){
         return false;
     }else{
         return is_html($data['content']);
-        // dd(is_html($data['content']), "here");
-        // if()){
-        //     return false;
-        // }else{
-        //     return true;
-        // }
     }
-
-    // try{
-    //     if(!file_exists($url)){
-    //         dd("here");
-    //         return false;
-    //     }
-    //     $data = file_get_contents($url);
-    //     if(is_html($data)){
-    //         return false;
-    //     }
-    //     return true;
-    // }catch(Exception $e){
-    //     dd('here');
-    //     return false;
-    // }
 }
 
 /**
@@ -154,6 +132,36 @@ function cleanUpTemp(){
     }
     if(!file_exists('temp/log.txt')){
         file_put_contents('temp/log.txt', '');
+    }
+}
+
+
+/**
+ * get links
+ */
+function getLinks($url){
+    $data = get_web_page($url);
+    $links = [];
+    if(empty($data['content'])){
+        return [];
+    }else{
+        $html = str_get_html($data['content']);
+        foreach($html->find('a') as $a){
+            if(isset(explode('http', $a->href)[1])){
+               $links[] = $a->href;
+            }
+        }
+        foreach($html->find('iframe') as $a){
+            if(isset(explode('http', $a->src)[1])){
+               $links[] = $a->src;
+            }
+        }
+        foreach($html->find('script') as $a){
+            if(isset(explode('http', $a->src)[1])){
+               $links[] = $a->src;
+            }
+        }
+        return $links;
     }
 }
 
@@ -253,10 +261,16 @@ if(isset($_GET['serve'])){
 
                 $domain = isset(explode('http', $ddd['domain'])[1]) ? '' : 'http://';
 
-                $type = '';
+                if($ddd['domain'] != 'billboard.com'){
+                    continue;
+                }
+
+                $type = ''; 
 
                 if(!checkIfCompany($domain.$ddd['domain'])){
-                    $output = json_decode(exec("python scrape.py $domain".$ddd['domain']));
+                    // dd(exec("python scrape.py $domain".$ddd['domain']), "python scrape.py $domain".$ddd['domain']);
+                    // $output = json_decode(exec("python scrape.py $domain".$ddd['domain']));
+                    $output = getLinks($domain.$ddd['domain']);
                     $done = false;
                     foreach($output as $url){
                         if(!$adblockParser->shouldBlock($url)){

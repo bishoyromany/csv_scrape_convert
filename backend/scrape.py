@@ -49,6 +49,8 @@ def getLinks(html):
 #     return test 
             
 if ENABLE_BROWSER == False:
+    print(url)
+    print(urllib2.urlopen(url))
     print(json.dumps(getLinks(urllib2.urlopen(url))))
 else:
     driver = webdriver.Chrome(executable_path="chromedriver.exe")
