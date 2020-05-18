@@ -1,6 +1,7 @@
-backend/files
+backend/debug.log
+backend/files/
 !backend/files/.gitkeep
-backend/temp
+backend/temp/
 !backend/temp/.gitkeep
-backend/download
+backend/download/
 !backend/download/.gitkeep
