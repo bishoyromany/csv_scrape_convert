@@ -144,24 +144,29 @@ function getLinks($url){
     if(empty($data['content'])){
         return [];
     }else{
-        $html = str_get_html($data['content']);
-        if($html){
-            foreach($html->find('a') as $a){
-                if(isset(explode('http', $a->href)[1])){
-                   $links[] = $a->href;
+        try{
+            $html = str_get_html($data['content']);
+            if(!empty($html)){
+                foreach($html->find('a') as $a){
+                    if(isset(explode('http', $a->href)[1])){
+                       $links[] = $a->href;
+                    }
+                }
+                foreach($html->find('iframe') as $a){
+                    if(isset(explode('http', $a->src)[1])){
+                       $links[] = $a->src;
+                    }
+                }
+                foreach($html->find('script') as $a){
+                    if(isset(explode('http', $a->src)[1])){
+                       $links[] = $a->src;
+                    }
                 }
             }
-            foreach($html->find('iframe') as $a){
-                if(isset(explode('http', $a->src)[1])){
-                   $links[] = $a->src;
-                }
-            }
-            foreach($html->find('script') as $a){
-                if(isset(explode('http', $a->src)[1])){
-                   $links[] = $a->src;
-                }
-            }
+        }catch(\Exception $e){
+            return [];
         }
+
         return $links;
     }
 }
@@ -260,6 +265,12 @@ if(isset($_GET['serve'])){
                 }
 
                 $domain = isset(explode('http', $ddd['domain'])[1]) ? '' : 'http://';
+
+                // if(isset(explode('pubwise', $domain)[1])){
+                //     dd("here");
+                // }else{
+                //     continue;
+                // }
 
                 $type = ''; 
 
